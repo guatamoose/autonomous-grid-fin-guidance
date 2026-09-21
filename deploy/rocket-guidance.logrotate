@@ -1,0 +1,10 @@
+/home/pi/rocket/logs/guidance.log {
+    size 2M
+    rotate 4
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    su pi pi
+}

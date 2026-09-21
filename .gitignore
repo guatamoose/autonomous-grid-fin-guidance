@@ -1,0 +1,23 @@
+# Local runtimes and generated working files
+.venv/
+work/
+.superpowers/
+__pycache__/
+*.py[cod]
+
+# Raw recordings and generated review images stay outside normal Git history.
+outputs/*.mp4
+outputs/*-contact-sheet.png
+outputs/*-detection-diagnostics.png
+
+# Keep only the finished presentation.
+outputs/rocket-guidance-progress.pptx
+outputs/rocket-guidance-progress-v2.pptx
+outputs/*.bundle
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.tmp

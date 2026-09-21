@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grid fin bench simulation</title>
+  <style>
+    :root{font-family:system-ui,Segoe UI,sans-serif;color:#eaf1ff;background:#0d1422}
+    *{box-sizing:border-box}
+    body{margin:0;padding:28px 18px;background:radial-gradient(circle at 50% -10%,#23395d,#0d1422 55%);min-height:100vh}
+    main{max-width:880px;margin:auto}
+    h1{font-size:1.65rem;margin:0 0 5px}
+    p{color:#b9c9df;margin:8px 0 18px;line-height:1.45}
+    .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 15px}
+    button{border:0;border-radius:9px;padding:11px 16px;font:700 1rem system-ui;cursor:pointer;background:#65d9ae;color:#10251f}
+    button.secondary{background:#35455f;color:#edf4ff}
+    button:disabled{opacity:.45;cursor:default}
+    #status{padding:8px 12px;border-radius:99px;background:#35455f;font-weight:700;text-transform:capitalize}
+    #status.running{background:#165b48;color:#b9ffe6}
+    #status.error{background:#752e35;color:#ffe4e6}
+    .stage{background:#111d30;border:1px solid #3a506e;border-radius:16px;padding:12px;box-shadow:0 18px 45px #0005}
+    svg{width:100%;height:auto;display:block;border-radius:9px;background:#142238}
+    .ring{fill:none;stroke:#5482ac;stroke-width:2}
+    .ring.active{stroke:#69e0b8;stroke-width:5}
+    .center{fill:#4ed1a5;fill-opacity:.14;stroke:#4ed1a5;stroke-width:2}
+    .center.active{stroke-width:5}
+    .axis{stroke:#a6c1d8;stroke-width:2}
+    #ray{stroke:#ffa44d;stroke-width:2;stroke-dasharray:7 6}
+    #ball{fill:#ff9d34;stroke:#fff3d2;stroke-width:3;filter:drop-shadow(0 0 10px #ff9d34b3)}
+    .svglabel{fill:#b9c9df;font:600 15px system-ui}
+    .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px;margin-top:13px}
+    .box{background:#1b2b42;border:1px solid #364c67;border-radius:9px;padding:10px}
+    .box small{display:block;color:#afc3dc;margin-bottom:4px}
+    .box strong{font-size:1.15rem;font-variant-numeric:tabular-nums}
+    .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;color:#b9c9df;font-size:.88rem}
+    #error{color:#ffb7bd;min-height:1.4em;margin-top:12px}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Visible ball + real grid fins</h1>
+  <p>The orange ball is a simulated landing pad. The flight controller receives the fin values shown below for that same ball position. This is a disarmed bench test; the camera is not involved.</p>
+  <div class="bar">
+    <button id="start" type="button">Start 20-second run</button>
+    <button id="stop" class="secondary" type="button" disabled>Stop and center fins</button>
+    <span id="status">Idle</span>
+    <span id="elapsed">0.0 s</span>
+  </div>
+  <div class="stage">
+    <svg viewBox="0 0 640 480" role="img" aria-label="Simulated orange landing pad bouncing through camera steering zones">
+      <rect x="1" y="1" width="638" height="478" fill="none" stroke="#405977" stroke-width="2" data-zone="400"/>
+      <circle cx="320" cy="240" r="180" class="ring" data-zone="300"/>
+      <circle cx="320" cy="240" r="120" class="ring" data-zone="200"/>
+      <circle cx="320" cy="240" r="60" class="ring" data-zone="100"/>
+      <circle cx="320" cy="240" r="12" class="center" data-zone="0"/>
+      <line x1="307" y1="240" x2="333" y2="240" class="axis"/>
+      <line x1="320" y1="227" x2="320" y2="253" class="axis"/>
+      <line id="ray" x1="320" y1="240" x2="470" y2="130"/>
+      <circle id="ball" cx="470" cy="130" r="12"/>
+      <text x="16" y="29" class="svglabel">CAMERA VIEW · SIMULATED TARGET</text>
+    </svg>
+    <div class="legend"><span>Center ≤5%: 0</span><span>≤25%: 100</span><span>≤50%: 200</span><span>≤75%: 300</span><span>Outside: 400 µs</span></div>
+    <div class="row">
+      <div class="box"><small>Requested zone</small><strong id="zone">0 µs</strong></div>
+      <div class="box"><small>S7 · right</small><strong id="s7">1505 µs</strong></div>
+      <div class="box"><small>S8 · top</small><strong id="s8">1460 µs</strong></div>
+      <div class="box"><small>S9 · bottom</small><strong id="s9">1370 µs</strong></div>
+      <div class="box"><small>S10 · left</small><strong id="s10">1200 µs</strong></div>
+    </div>
+  </div>
+  <div id="error" role="alert"></div>
+  <p>Each run ends after 20 seconds or when Stop is pressed. Physical commands are limited to ±400 µs from neutral and further reduced where the controller's saved limits require it.</p>
+</main>
+<script>
+  const q = id => document.getElementById(id);
+  let latestStatus = 'idle';
+  function render(state){
+    const x = state.ball.x, y = state.ball.y;
+    q('ball').setAttribute('cx', x);
+    q('ball').setAttribute('cy', y);
+    q('ray').setAttribute('x2', x);
+    q('ray').setAttribute('y2', y);
+    q('zone').textContent = state.requested_us + ' µs';
+    for(const n of [7,8,9,10]) q('s'+n).textContent = state.pulses[String(n)] + ' µs';
+    q('status').textContent = state.status;
+    q('status').className = state.status;
+    q('elapsed').textContent = Number(state.elapsed).toFixed(1) + ' s';
+    q('error').textContent = state.error || '';
+    const active = ['connecting','running','stopping'].includes(state.status);
+    q('start').disabled = active;
+    q('stop').disabled = !active;
+    document.querySelectorAll('[data-zone]').forEach(el => {
+      el.classList.toggle('active', Number(el.dataset.zone) === state.requested_us);
+    });
+    latestStatus = state.status;
+  }
+  async function poll(){
+    try{
+      const response = await fetch('/state', {cache:'no-store'});
+      if(!response.ok) throw new Error('State request failed');
+      render(await response.json());
+    }catch(error){
+      q('error').textContent = 'Connection to the local bench controller was lost: ' + error.message;
+    }finally{
+      setTimeout(poll, latestStatus === 'running' ? 150 : 500);
+    }
+  }
+  async function command(path){
+    try{
+      const response = await fetch(path, {method:'POST'});
+      render(await response.json());
+    }catch(error){q('error').textContent = error.message;}
+  }
+  q('start').addEventListener('click', () => command('/start'));
+  q('stop').addEventListener('click', () => command('/stop'));
+  poll();
+</script>
+</body>
+</html>

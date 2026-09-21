@@ -1,0 +1,20 @@
+[Unit]
+Description=Rocket camera landing-pad guidance
+StartLimitIntervalSec=30
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=pi
+SupplementaryGroups=video dialout
+WorkingDirectory=/home/pi/rocket
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/default/rocket-guidance
+ExecStart=/home/pi/rocket/venv/bin/python /home/pi/rocket/autonomous_guidance.py --serial /dev/serial0 --baud 57600 --host 0.0.0.0 --port 8766 --max-offset ${GUIDANCE_MAX_OFFSET} --target-fps ${GUIDANCE_TARGET_FPS} --exposure-value ${GUIDANCE_EXPOSURE_VALUE} --recording ${GUIDANCE_RECORDING} --recording-dir ${GUIDANCE_RECORDING_DIR} --recording-fps ${GUIDANCE_RECORDING_FPS} --recording-bitrate ${GUIDANCE_RECORDING_BITRATE} --recording-segment-seconds ${GUIDANCE_RECORDING_SEGMENT_SECONDS} --recording-keep-segments ${GUIDANCE_RECORDING_KEEP_SEGMENTS} $GUIDANCE_MODE_ARG
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=8
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
