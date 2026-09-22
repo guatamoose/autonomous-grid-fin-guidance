@@ -6,13 +6,13 @@
 - Application: `/home/pi/rocket`
 - Service: `rocket-guidance.service`
 - Boot enablement: enabled
-- Runtime state: stopped after supervised servo recalibration; the Pi currently
-  reports no camera connected.
-- Startup mode: the service remains enabled and will start automatically when
-  the Pi boots after the camera is reconnected.
+- Runtime state: active in live guidance mode after the repaired-fin calibration.
+- Startup mode: live guidance starts automatically when the Pi boots.
 - Calculated correction cap: ±400 microseconds
 - S7–S10 stay at their calibrated neutral values while no pad is detected. After a confirmed pad lock, the live outputs follow the calculated correction immediately.
 - Camera: IMX500 detected and processing 640×480 guidance frames.
+- Post-reconnection check: approximately 11 FPS, recording active, no recording
+  error, and all four outputs held at the new neutral values while searching.
 - Guidance performance with recording active: 70/70 valid one-second
   samples, 11.757 FPS minimum, 11.882 FPS median, and 11.869 FPS mean.
 - Recorder: H.264 hardware encoding at 640×480 and 15 FPS in one-minute
