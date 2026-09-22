@@ -329,6 +329,10 @@ class ImmediateServoController(BlockingServoController):
 
 
 class AsyncServoDispatcherTests(unittest.TestCase):
+    def test_default_update_rate_is_twelve_hz(self):
+        dispatcher = AsyncServoDispatcher(ImmediateServoController())
+        self.assertAlmostEqual(dispatcher.min_cycle_interval, 1.0 / 12.0)
+
     def test_neutral_queues_a_neutral_command(self):
         raw = ImmediateServoController()
         dispatcher = AsyncServoDispatcher(raw).start()
@@ -388,7 +392,7 @@ class AsyncServoDispatcherTests(unittest.TestCase):
         self.assertEqual(raw.sent, [command])
         dispatcher.close()
 
-    def test_changed_commands_are_limited_to_eight_hz(self):
+    def test_changed_commands_are_limited_to_twelve_hz(self):
         raw = ImmediateServoController()
         dispatcher = AsyncServoDispatcher(raw).start()
         first = dict(NEUTRAL)
@@ -403,7 +407,7 @@ class AsyncServoDispatcherTests(unittest.TestCase):
         deadline = time.monotonic() + 0.5
         while len(raw.sent) < 2 and time.monotonic() < deadline:
             time.sleep(0.005)
-        self.assertGreaterEqual(raw.sent_at[1] - raw.sent_at[0], 0.115)
+        self.assertGreaterEqual(raw.sent_at[1] - raw.sent_at[0], 0.075)
         dispatcher.close()
 
     def test_worker_failure_is_reported_and_attempts_neutral(self):

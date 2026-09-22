@@ -18,7 +18,7 @@
 - Recorder: H.264 hardware encoding at 640×480 and 15 FPS in one-minute
   segments. The newest 60 completed segments are retained, giving one hour of
   rolling evidence plus the active segment.
-- Servo transport: changed commands only, capped at 8 Hz, with sequential
+- Servo transport: changed commands only, capped at 12 Hz, with sequential
   acknowledgement and up to three MAVLink delivery attempts. Camera processing
   and recording run independently of acknowledged serial traffic.
 - Restrained live activation: the service acquired a moving pad and exercised
