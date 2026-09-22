@@ -42,7 +42,7 @@ class CameraBenchTests(unittest.TestCase):
 
         self.assertEqual(command_for_target((200, 240), (640, 480),
                                             expected_settings(), 200),
-                         {7: 1505, 8: 1660, 9: 1170, 10: 1200})
+                         {7: 1505, 8: 1630, 9: 1400, 10: 1400})
 
     def test_missing_pad_commands_neutral(self):
         from live_camera_bench import command_for_target
@@ -56,7 +56,7 @@ class CameraBenchTests(unittest.TestCase):
         link = FakeLink()
         run_camera_session(link, lambda: ((200, 240), (640, 480), time.monotonic()),
                            threading.Event(), duration=0.08, max_offset=200)
-        self.assertIn({7: 1505, 8: 1660, 9: 1170, 10: 1200}, link.sent)
+        self.assertIn({7: 1505, 8: 1630, 9: 1400, 10: 1400}, link.sent)
         self.assertEqual(link.sent[-1], NEUTRAL)
         self.assertTrue(link.closed)
 

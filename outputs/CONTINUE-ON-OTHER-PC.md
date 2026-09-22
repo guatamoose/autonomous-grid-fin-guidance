@@ -3,7 +3,7 @@
 ## Current state
 
 - Native always-on Raspberry Pi guidance implementation is complete locally through deployment packaging.
-- The complete local test suite passes: 64 tests, zero failures.
+- The complete local test suite passes: 96 tests, zero failures.
 - Final configured guidance cap is ±400 microseconds from each calibrated neutral.
 - Initial Pi deployment is intentionally observe-only and forces all physical outputs to neutral.
 - The original Pi SSH public key is accepted by the Pi, but its private-key passphrase is unavailable.
@@ -19,9 +19,9 @@
 - Monitor port: 8766
 - Servo calibration:
   - S7 right: 1105 / 1505 / 1905
-  - S8 top: 1060 / 1460 / 1860
-  - S9 bottom: 970 / 1370 / 1770
-  - S10 left: 800 / 1200 / 1600
+  - S8 top: 1030 / 1430 / 1830
+  - S9 bottom: 1200 / 1600 / 2000
+  - S10 left: 1000 / 1400 / 1800
 
 ## First task on the other computer
 
@@ -46,9 +46,9 @@
 - Verify search, acquire, lock, lost, and stale-camera behavior.
 - Confirm reported physical output values remain neutral:
   - S7 1505
-  - S8 1460
-  - S9 1370
-  - S10 1200
+  - S8 1430
+  - S9 1600
+  - S10 1400
 - Verify logs rotate and `vcgencmd get_throttled` reports `0x0`.
 
 ## Work requiring the user present

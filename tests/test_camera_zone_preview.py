@@ -16,7 +16,7 @@ class PreviewTests(unittest.TestCase):
         telemetry = OverlayTelemetry(
             state="locked", acquire_count=3, requested_us=300,
             direction="left-up",
-            pulses={7: 1705, 8: 1260, 9: 1570, 10: 1000},
+            pulses={7: 1705, 8: 1630, 9: 1400, 10: 1200},
             neutrals=NEUTRAL, observe_only=False, fps=12.4,
             recording="active", timestamp="2026-09-21T05:12:03Z")
         text = "\n".join(build_overlay_lines(telemetry))
@@ -24,7 +24,7 @@ class PreviewTests(unittest.TestCase):
         self.assertIn("left-up", text)
         self.assertIn("request 300 us", text)
         self.assertIn("S7 1705 (+200)", text)
-        self.assertIn("S10 1000 (-200)", text)
+        self.assertIn("S10 1200 (-200)", text)
         self.assertIn("12.4 fps", text)
         self.assertIn("REC active", text)
         self.assertIn("2026-09-21T05:12:03Z", text)

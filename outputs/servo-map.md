@@ -32,10 +32,13 @@ After electronic neutral calibration, these pairs were commanded 200 µs either 
 
 | Pair | One direction | Reverse direction | User observation |
 | --- | --- | --- | --- |
-| Top S8 / bottom S9 | S8=1660, S9=1170 | S8=1260, S9=1570 | Fins tilted together, with no binding or buzzing in either direction |
-| Right S7 / left S10 | S7=1705, S10=1000 | S7=1305, S10=1400 | Fins tilted together, with no binding or buzzing in either direction |
+| Top S8 / bottom S9 | S8=1630, S9=1400 | S8=1230, S9=1800 | Same recorded pair signs, recalculated around the repaired-fin neutrals |
+| Right S7 / left S10 | S7=1705, S10=1200 | S7=1305, S10=1600 | Same recorded pair signs, recalculated around the repaired-fin neutrals |
 
-Individual neutral PWM values are S7=1505, S8=1460, S9=1370, and S10=1200 µs. After these tests all four outputs were returned to those values and verified by `SERVO_OUTPUT_RAW` telemetry.
+After the fin repair on 2026-09-22, the individual neutral PWM values are
+S7=1505, S8=1430, S9=1600, and S10=1400 µs. The flight controller parameters
+were read back and all four outputs were commanded to those values. Matching
+`SERVO_OUTPUT_RAW` telemetry was received.
 
 This establishes relative PWM signs for coordinated fin motion on the bench: within each opposite pair, one output increases while the other decreases. It does not establish which command moves the rocket left/right or up/down in free flight, nor whether equal PWM offsets give equal fin angles or forces.
 
@@ -45,9 +48,9 @@ The user inspected the paired deflections and identified the **expected nose mov
 
 | Expected nose direction | S7 right | S8 top | S9 bottom | S10 left |
 | --- | ---: | ---: | ---: | ---: |
-| Left | 1505 | 1660 | 1170 | 1200 |
-| Right (reverse of left) | 1505 | 1260 | 1570 | 1200 |
-| Up | 1705 | 1460 | 1370 | 1000 |
-| Down (reverse of up) | 1305 | 1460 | 1370 | 1400 |
+| Left | 1505 | 1630 | 1400 | 1400 |
+| Right (reverse of left) | 1505 | 1230 | 1800 | 1400 |
+| Up | 1705 | 1430 | 1600 | 1200 |
+| Down (reverse of up) | 1305 | 1430 | 1600 | 1600 |
 
 The left and up rows were visually identified by the user at the shown ±200 µs test positions. The right and down rows are their reverse commands, inferred from the symmetric bench movements. These are steering hypotheses, not measured rocket trajectory or camera-image motion. All four outputs were returned to neutral after the demonstrations and verified by telemetry.

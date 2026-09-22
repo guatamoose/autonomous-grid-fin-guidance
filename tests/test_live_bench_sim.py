@@ -26,7 +26,7 @@ class LiveBenchSimulationTests(unittest.TestCase):
         self.assertEqual(frame["ball"], {"x": 470, "y": 130})
         self.assertEqual(frame["requested_us"], 400)
         self.assertEqual(frame["pulses"],
-                         {"7": 1742, "8": 1137, "9": 1693, "10": 963})
+                         {"7": 1742, "8": 1107, "9": 1923, "10": 1163})
 
     def test_live_run_sends_displayed_pulses_then_returns_to_neutral(self):
         live = load_live_sim()
@@ -57,7 +57,7 @@ class LiveBenchSimulationTests(unittest.TestCase):
         self.assertEqual(link.commands[1],
                          {int(k): v for k, v in frames[0]["pulses"].items()})
         self.assertEqual(link.commands[-1],
-                         {7: 1505, 8: 1460, 9: 1370, 10: 1200})
+                         {7: 1505, 8: 1430, 9: 1600, 10: 1400})
         self.assertTrue(link.closed)
 
 

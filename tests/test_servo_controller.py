@@ -130,6 +130,20 @@ def connected_controller(connection=None, clock=lambda: 0.0,
 
 
 class ServoControllerTests(unittest.TestCase):
+    def test_calibration_uses_repaired_fin_values(self):
+        self.assertEqual(
+            NEUTRAL, {7: 1505, 8: 1430, 9: 1600, 10: 1400})
+        self.assertEqual(expected_settings(), {
+            7: {"function": 0, "min": 1105, "max": 1905,
+                "trim": 1505},
+            8: {"function": 0, "min": 1030, "max": 1830,
+                "trim": 1430},
+            9: {"function": 0, "min": 1200, "max": 2000,
+                "trim": 1600},
+            10: {"function": 0, "min": 1000, "max": 1800,
+                 "trim": 1400},
+        })
+
     def test_connect_reads_exact_saved_settings(self):
         controller = connected_controller()
         self.assertEqual(controller.settings, expected_settings())
@@ -151,8 +165,8 @@ class ServoControllerTests(unittest.TestCase):
         commands = [event for event in connection.events[before:]
                     if event[0] == "command"]
         self.assertEqual(commands, [
-            ("command", 7, 1505), ("command", 8, 1460),
-            ("command", 9, 1370), ("command", 10, 1200)])
+            ("command", 7, 1505), ("command", 8, 1430),
+            ("command", 9, 1600), ("command", 10, 1400)])
 
     def test_send_cycle_waits_for_each_ack_before_next_command(self):
         connection = FakeConnection(record_receives=True)
@@ -245,8 +259,8 @@ class ServoControllerTests(unittest.TestCase):
         controller = connected_controller(connection)
         controller.close()
         self.assertEqual(connection.events[-5:], [
-            ("command", 7, 1505), ("command", 8, 1460),
-            ("command", 9, 1370), ("command", 10, 1200),
+            ("command", 7, 1505), ("command", 8, 1430),
+            ("command", 9, 1600), ("command", 10, 1400),
             ("close",)])
 
     def test_diagonal_request_scales_both_axes_to_saved_limits(self):
@@ -315,6 +329,24 @@ class ImmediateServoController(BlockingServoController):
 
 
 class AsyncServoDispatcherTests(unittest.TestCase):
+    def test_neutral_queues_a_neutral_command(self):
+        raw = ImmediateServoController()
+        dispatcher = AsyncServoDispatcher(raw).start()
+        command = dict(NEUTRAL)
+        command[7] += 100
+        dispatcher.send_cycle(command)
+        deadline = time.monotonic() + 0.5
+        while len(raw.sent) < 1 and time.monotonic() < deadline:
+            time.sleep(0.005)
+
+        dispatcher.neutral()
+        deadline = time.monotonic() + 0.5
+        while len(raw.sent) < 2 and time.monotonic() < deadline:
+            time.sleep(0.005)
+        dispatcher.close()
+
+        self.assertEqual(raw.sent[1], NEUTRAL)
+
     def test_publish_is_nonblocking_and_replaces_stale_pending_command(self):
         raw = BlockingServoController()
         dispatcher = AsyncServoDispatcher(raw).start()

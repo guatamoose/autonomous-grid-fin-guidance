@@ -1,13 +1,15 @@
 # Autonomous landing-pad guidance operations
 
-## Current verified state — 2026-09-21
+## Current verified state — 2026-09-22
 
 - Host: `rocketpi` (`pi@192.168.137.104` on the Windows hotspot)
 - Application: `/home/pi/rocket`
 - Service: `rocket-guidance.service`
 - Boot enablement: enabled
-- Runtime state: active in live guidance mode
-- Startup mode: live guidance starts automatically when the Pi boots
+- Runtime state: stopped after supervised servo recalibration; the Pi currently
+  reports no camera connected.
+- Startup mode: the service remains enabled and will start automatically when
+  the Pi boots after the camera is reconnected.
 - Calculated correction cap: ±400 microseconds
 - S7–S10 stay at their calibrated neutral values while no pad is detected. After a confirmed pad lock, the live outputs follow the calculated correction immediately.
 - Camera: IMX500 detected and processing 640×480 guidance frames.
@@ -34,9 +36,14 @@
 | Output | Minimum | Neutral | Maximum |
 | --- | ---: | ---: | ---: |
 | S7 | 1105 | 1505 | 1905 |
-| S8 | 1060 | 1460 | 1860 |
-| S9 | 970 | 1370 | 1770 |
-| S10 | 800 | 1200 | 1600 |
+| S8 | 1030 | 1430 | 1830 |
+| S9 | 1200 | 1600 | 2000 |
+| S10 | 1000 | 1400 | 1800 |
+
+These values were written to the disarmed flight controller on 2026-09-22,
+read back independently, and then commanded once. `SERVO_OUTPUT_RAW` telemetry
+matched S7=1505, S8=1430, S9=1600, and S10=1400. The user confirmed that all
+four fins were straight, quiet, and clear of binding at those positions.
 
 ## Service commands on the Pi
 

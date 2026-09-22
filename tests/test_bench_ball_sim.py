@@ -27,18 +27,18 @@ class BenchBallSimulationTests(unittest.TestCase):
     def test_left_target_uses_the_recorded_opposite_pair(self):
         decision = decide((200, 240), (640, 480))
         self.assertEqual(self.sim.pulses_for(decision),
-                         {7: 1505, 8: 1660, 9: 1170, 10: 1200})
+                         {7: 1505, 8: 1630, 9: 1400, 10: 1400})
 
     def test_up_target_uses_the_recorded_side_pair(self):
         decision = decide((320, 120), (640, 480))
         self.assertEqual(self.sim.pulses_for(decision),
-                         {7: 1705, 8: 1460, 9: 1370, 10: 1000})
+                         {7: 1705, 8: 1430, 9: 1600, 10: 1200})
 
     def test_outer_ring_still_caps_real_bench_offset_at_200(self):
         decision = decide((600, 240), (640, 480))
         self.assertEqual(decision.requested_us, 400)
         self.assertEqual(self.sim.pulses_for(decision),
-                         {7: 1505, 8: 1260, 9: 1570, 10: 1200})
+                         {7: 1505, 8: 1230, 9: 1800, 10: 1400})
 
     def test_invalid_controller_limits_block_movement(self):
         settings = self.sim.expected_settings()
@@ -50,22 +50,22 @@ class BenchBallSimulationTests(unittest.TestCase):
         decision = decide((0, 240), (640, 480), max_tested_us=300)
         self.assertEqual(self.sim.bounded_pulses_for(
             decision, self.sim.expected_settings()),
-            {7: 1505, 8: 1760, 9: 1070, 10: 1200})
+            {7: 1505, 8: 1730, 9: 1300, 10: 1400})
 
     def test_400_up_pair_reaches_tested_endpoints(self):
         decision = decide((320, 0), (640, 480), max_tested_us=400)
         self.assertEqual(self.sim.bounded_pulses_for(
             decision, self.sim.expected_settings()),
-            {7: 1905, 8: 1460, 9: 1370, 10: 800})
+            {7: 1905, 8: 1430, 9: 1600, 10: 1000})
 
     def test_live_command_cannot_cross_saved_limit(self):
         with self.assertRaises(ValueError):
-            self.sim.validate_command({7: 1906, 8: 1460, 9: 1370, 10: 1200},
+            self.sim.validate_command({7: 1906, 8: 1430, 9: 1600, 10: 1400},
                                       self.sim.expected_settings(), 400)
 
     def test_live_command_cannot_cross_selected_bench_cap(self):
         with self.assertRaises(ValueError):
-            self.sim.validate_command({7: 1806, 8: 1460, 9: 1370, 10: 1200},
+            self.sim.validate_command({7: 1806, 8: 1430, 9: 1600, 10: 1400},
                                       self.sim.expected_settings(), 300)
 
     def test_bench_cap_cannot_exceed_requested_400(self):

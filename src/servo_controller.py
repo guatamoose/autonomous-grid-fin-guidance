@@ -4,7 +4,7 @@ import time
 from threading import Condition, Thread
 
 
-NEUTRAL = {7: 1505, 8: 1460, 9: 1370, 10: 1200}
+NEUTRAL = {7: 1505, 8: 1430, 9: 1600, 10: 1400}
 TESTED_OFFSET_US = 200
 HEARTBEAT_TIMEOUT_SECONDS = 2.5
 PARAM_CHECK_INTERVAL_SECONDS = 1.0
@@ -26,9 +26,9 @@ def validate_bench_cap(max_offset):
 def expected_settings():
     return {
         7: {"function": 0, "min": 1105, "max": 1905, "trim": 1505},
-        8: {"function": 0, "min": 1060, "max": 1860, "trim": 1460},
-        9: {"function": 0, "min": 970, "max": 1770, "trim": 1370},
-        10: {"function": 0, "min": 800, "max": 1600, "trim": 1200},
+        8: {"function": 0, "min": 1030, "max": 1830, "trim": 1430},
+        9: {"function": 0, "min": 1200, "max": 2000, "trim": 1600},
+        10: {"function": 0, "min": 1000, "max": 1800, "trim": 1400},
     }
 
 
@@ -305,6 +305,9 @@ class AsyncServoDispatcher:
             self._condition.notify_all()
 
     send = send_cycle
+
+    def neutral(self):
+        self.send_cycle(NEUTRAL)
 
     def check_health(self, now=None):
         del now

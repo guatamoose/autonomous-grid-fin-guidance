@@ -47,3 +47,20 @@ The user chose an electronic bench neutral. The controller now has `SERVO7_TRIM=
 After the reboot and neutral commands, the user confirmed all four fins appeared straight and held without buzzing or binding.
 
 The user clarified that S10 was physically tested at 800 µs and moved smoothly without buzzing, binding, or contact with the rocket body. It had also been tested at 1600 µs earlier. Therefore `SERVO10_MIN=800` and `SERVO10_MAX=1600` were saved and read back, making its 1200 µs trim the midpoint of the configured PWM range. This establishes equal PWM headroom on either side, not equal fin angle or aerodynamic force; paired direction and travel still need bench verification. S7–S9 retain their saved 1100–1900 µs limits.
+
+## Repaired-fin calibration — 2026-09-22
+
+After repairing the fin assembly, the user selected these new centered ranges:
+
+| Output | Minimum | Neutral | Maximum |
+| --- | ---: | ---: | ---: |
+| S7 | 1105 | 1505 | 1905 |
+| S8 | 1030 | 1430 | 1830 |
+| S9 | 1200 | 1600 | 2000 |
+| S10 | 1000 | 1400 | 1800 |
+
+All four channels retain symmetric ±400 µs travel. The parameters were written
+with the controller disarmed and guidance stopped, read back independently, and
+then commanded once at neutral. Telemetry matched all four requested neutral
+values. The user then confirmed that all four fins were straight, quiet, and
+clear of binding.
