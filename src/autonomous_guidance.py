@@ -110,17 +110,20 @@ class PicameraSource:
         self.camera.close()
 
 
-def apply_camera_exposure(camera, exposure_value=-1.0):
+def apply_camera_exposure(camera, exposure_value=0.0):
     from libcamera import controls
 
+    constraint = (controls.AeConstraintModeEnum.Highlight
+                  if exposure_value < 0
+                  else controls.AeConstraintModeEnum.Normal)
     camera.set_controls({
         "AeEnable": True,
-        "AeConstraintMode": controls.AeConstraintModeEnum.Highlight,
+        "AeConstraintMode": constraint,
         "ExposureValue": float(exposure_value),
     })
 
 
-def open_camera_source(size=(640, 480), exposure_value=-1.0):
+def open_camera_source(size=(640, 480), exposure_value=0.0):
     from picamera2 import Picamera2
 
     camera = Picamera2()
@@ -409,7 +412,7 @@ def main(argv=None):
     parser.add_argument("--max-offset", type=int, choices=(200, 300, 400),
                         default=400)
     parser.add_argument("--target-fps", type=float, default=15.0)
-    parser.add_argument("--exposure-value", type=float, default=-1.0)
+    parser.add_argument("--exposure-value", type=float, default=0.0)
     parser.add_argument("--recording", type=int, choices=(0, 1), default=1)
     parser.add_argument("--recording-dir",
                         default="/home/pi/rocket/recordings")

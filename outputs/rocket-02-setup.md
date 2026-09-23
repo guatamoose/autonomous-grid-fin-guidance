@@ -83,6 +83,8 @@ neutral without binding or buzzing.
 
 - Two minutes of repeated neutral commands completed without fin movement.
 - Camera detection at 15 FPS with recording off completed without fin movement.
+- Camera exposure compensation was restored to the normal `0.0` setting after
+  negative compensation made the indoor camera view too dark.
 - Camera detection with recording on crossed multiple 60-second recording
   boundaries without fin movement.
 - The real systemd service ran for more than two minutes without fin movement,

@@ -222,6 +222,29 @@ class GuidanceRuntimeTests(unittest.TestCase):
 
 
 class CameraExposureTests(unittest.TestCase):
+    def test_zero_ev_restores_normal_auto_exposure_constraint(self):
+        class FakeCameraControls:
+            def __init__(self):
+                self.values = None
+
+            def set_controls(self, values):
+                self.values = values
+
+        fake_controls = types.SimpleNamespace(
+            AeConstraintModeEnum=types.SimpleNamespace(
+                Highlight="highlight", Normal="normal"))
+        fake_libcamera = types.SimpleNamespace(controls=fake_controls)
+        camera = FakeCameraControls()
+
+        with patch.dict(sys.modules, {"libcamera": fake_libcamera}):
+            apply_camera_exposure(camera, 0.0)
+
+        self.assertEqual(camera.values, {
+            "AeEnable": True,
+            "AeConstraintMode": "normal",
+            "ExposureValue": 0.0,
+        })
+
     def test_applies_negative_ev_with_highlight_constraint(self):
         class FakeCameraControls:
             def __init__(self):

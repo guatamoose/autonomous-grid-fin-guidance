@@ -40,7 +40,7 @@ class DeploymentFileTests(unittest.TestCase):
     def test_defaults_enable_fifteen_fps_rolling_recording(self):
         defaults = self.read("deploy/rocket-guidance.default")
         self.assertIn("GUIDANCE_TARGET_FPS=15", defaults)
-        self.assertIn("GUIDANCE_EXPOSURE_VALUE=-1.0", defaults)
+        self.assertIn("GUIDANCE_EXPOSURE_VALUE=0.0", defaults)
         self.assertIn("GUIDANCE_RECORDING=1", defaults)
         self.assertIn("GUIDANCE_RECORDING_DIR=/home/pi/rocket/recordings",
                       defaults)
