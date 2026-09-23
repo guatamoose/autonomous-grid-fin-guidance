@@ -8,6 +8,7 @@ Matek H743-SLIM V4 flight controller, and four SG90 grid-fin servos.
 - Detects the orange landing pad and steers its center toward the camera center.
 - Uses a 5% dead zone and 100 / 200 / 300 / 400 microsecond correction bands.
 - Drives the calibrated S7-S10 fin channels through a bounded MAVLink interface.
+- Loads a validated per-airframe fin map and calibration profile at startup.
 - Starts at boot, provides a browser monitor, and records one-minute evidence clips.
 - Includes bench simulations, hardware fault handling, and deployment files.
 - Supports highlight-protected camera auto-exposure with an adjustable EV bias.
@@ -20,7 +21,8 @@ Run the complete test suite from the repository root:
 python -m unittest discover -s tests -v
 ```
 
-The camera exposure update was verified with 94 passing tests on 2026-09-21.
+The Rocket 2 airframe profile update was verified with 105 passing tests on
+2026-09-23.
 
 ## Repository contents
 

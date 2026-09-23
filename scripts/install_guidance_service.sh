@@ -11,9 +11,12 @@ PROJECT_DIR=$(dirname -- "$SCRIPT_DIR")
 APP_DIR=/home/pi/rocket
 LOG_DIR=/home/pi/rocket/logs
 RECORDING_DIR=/home/pi/rocket/recordings
+AIRFRAME_DIR=/etc/rocket-guidance/airframes
 
 install -d -o pi -g pi -m 0755 "$APP_DIR" "$LOG_DIR" "$RECORDING_DIR"
+install -d -o root -g root -m 0755 "$AIRFRAME_DIR"
 install -o pi -g pi -m 0644 "$PROJECT_DIR"/src/*.py "$APP_DIR"/
+install -o root -g root -m 0644 "$PROJECT_DIR"/deploy/airframes/*.json "$AIRFRAME_DIR"/
 
 if [ ! -x "$APP_DIR/venv/bin/python" ]; then
     echo "Missing $APP_DIR/venv/bin/python; create the Pi virtual environment first." >&2

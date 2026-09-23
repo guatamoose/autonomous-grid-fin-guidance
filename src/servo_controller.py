@@ -1,10 +1,109 @@
 """Calibrated, bounded MAVLink control for the four grid-fin servos."""
 
+import json
+import os
 import time
+from dataclasses import dataclass
+from pathlib import Path
 from threading import Condition, Thread
 
 
-NEUTRAL = {7: 1505, 8: 1430, 9: 1600, 10: 1400}
+POSITIONS = ("top", "right", "bottom", "left")
+
+
+@dataclass(frozen=True)
+class FinCalibration:
+    channel: int
+    minimum: int
+    neutral: int
+    maximum: int
+    x_sign: int
+    y_sign: int
+    low_toward_nose: str
+
+
+@dataclass(frozen=True)
+class AirframeProfile:
+    name: str
+    fins: dict[str, FinCalibration]
+
+    @property
+    def neutral(self):
+        return {
+            fin.channel: fin.neutral
+            for fin in sorted(self.fins.values(), key=lambda item: item.channel)
+        }
+
+
+DEFAULT_AIRFRAME_DATA = {
+    "name": "rocket-01",
+    "fins": {
+        "top": {"channel": 8, "minimum": 1030, "neutral": 1430,
+                "maximum": 1830, "x_sign": -1, "y_sign": 0,
+                "low_toward_nose": "not_recorded"},
+        "right": {"channel": 7, "minimum": 1105, "neutral": 1505,
+                  "maximum": 1905, "x_sign": 0, "y_sign": 1,
+                  "low_toward_nose": "not_recorded"},
+        "bottom": {"channel": 9, "minimum": 1200, "neutral": 1600,
+                   "maximum": 2000, "x_sign": 1, "y_sign": 0,
+                   "low_toward_nose": "not_recorded"},
+        "left": {"channel": 10, "minimum": 1000, "neutral": 1400,
+                 "maximum": 1800, "x_sign": 0, "y_sign": -1,
+                 "low_toward_nose": "not_recorded"},
+    },
+}
+
+
+def _profile_from_data(data):
+    if set(data.get("fins", {})) != set(POSITIONS):
+        raise ValueError("Airframe profile must define top, right, bottom, and left")
+    fins = {}
+    for position in POSITIONS:
+        raw = data["fins"][position]
+        fin = FinCalibration(
+            channel=int(raw["channel"]),
+            minimum=int(raw["minimum"]),
+            neutral=int(raw["neutral"]),
+            maximum=int(raw["maximum"]),
+            x_sign=int(raw["x_sign"]),
+            y_sign=int(raw["y_sign"]),
+            low_toward_nose=str(raw.get("low_toward_nose", "not_recorded")),
+        )
+        if fin.neutral - fin.minimum != 400 or fin.maximum - fin.neutral != 400:
+            raise ValueError(f"{position} fin must provide 400 us each way")
+        fins[position] = fin
+    channels = [fin.channel for fin in fins.values()]
+    if len(set(channels)) != len(channels):
+        raise ValueError("Airframe fin channels must be unique")
+    if set(channels) != {7, 8, 9, 10}:
+        raise ValueError("Airframe profile must use S7, S8, S9, and S10")
+    if any((fins[p].x_sign, fins[p].y_sign) not in ((-1, 0), (1, 0))
+           for p in ("top", "bottom")):
+        raise ValueError("Top and bottom fins must map only to the horizontal axis")
+    if any((fins[p].x_sign, fins[p].y_sign) not in ((0, -1), (0, 1))
+           for p in ("right", "left")):
+        raise ValueError("Right and left fins must map only to the vertical axis")
+    if fins["top"].x_sign != -fins["bottom"].x_sign:
+        raise ValueError("Top and bottom fins must use mirrored PWM signs")
+    if fins["right"].y_sign != -fins["left"].y_sign:
+        raise ValueError("Right and left fins must use mirrored PWM signs")
+    return AirframeProfile(str(data["name"]), fins)
+
+
+def load_airframe_profile(path):
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    return _profile_from_data(data)
+
+
+def _active_airframe_profile():
+    configured_path = os.environ.get("GUIDANCE_AIRFRAME_PROFILE", "").strip()
+    if configured_path:
+        return load_airframe_profile(configured_path)
+    return _profile_from_data(DEFAULT_AIRFRAME_DATA)
+
+
+ACTIVE_PROFILE = _active_airframe_profile()
+NEUTRAL = ACTIVE_PROFILE.neutral
 TESTED_OFFSET_US = 200
 HEARTBEAT_TIMEOUT_SECONDS = 2.5
 PARAM_CHECK_INTERVAL_SECONDS = 1.0
@@ -23,17 +122,17 @@ def validate_bench_cap(max_offset):
         raise ValueError("Bench offset must be 200, 300, or 400 µs")
 
 
-def expected_settings():
+def expected_settings(profile=None):
+    profile = profile or ACTIVE_PROFILE
     return {
-        7: {"function": 0, "min": 1105, "max": 1905, "trim": 1505},
-        8: {"function": 0, "min": 1030, "max": 1830, "trim": 1430},
-        9: {"function": 0, "min": 1200, "max": 2000, "trim": 1600},
-        10: {"function": 0, "min": 1000, "max": 1800, "trim": 1400},
+        fin.channel: {"function": 0, "min": fin.minimum,
+                      "max": fin.maximum, "trim": fin.neutral}
+        for fin in sorted(profile.fins.values(), key=lambda item: item.channel)
     }
 
 
-def validate_settings(settings):
-    for channel, expected in expected_settings().items():
+def validate_settings(settings, profile=None):
+    for channel, expected in expected_settings(profile).items():
         actual = settings.get(channel)
         if actual is None:
             raise ValueError(f"S{channel} settings were not received")
@@ -44,41 +143,45 @@ def validate_settings(settings):
                     f"expected {expected_value}")
 
 
-def validate_command(pulses, settings, max_offset):
+def validate_command(pulses, settings, max_offset, profile=None):
+    profile = profile or ACTIVE_PROFILE
+    neutral = profile.neutral
     validate_bench_cap(max_offset)
-    if set(pulses) != set(NEUTRAL):
+    if set(pulses) != set(neutral):
         raise ValueError("All four fin commands are required")
     for channel, pulse in pulses.items():
-        if abs(pulse - NEUTRAL[channel]) > max_offset:
+        if abs(pulse - neutral[channel]) > max_offset:
             raise ValueError(f"S{channel} command exceeds the selected offset")
         if not settings[channel]["min"] <= pulse <= settings[channel]["max"]:
             raise ValueError(f"S{channel} command exceeds a saved servo limit")
 
 
-def pulses_for(decision):
-    """Map image-space nose direction to the recorded paired-fin signs."""
+def pulses_for(decision, profile=None):
+    """Map image-space nose direction to mirrored opposing fin commands."""
+    profile = profile or ACTIVE_PROFILE
     x, y = decision.safe_nose_x_us, decision.safe_nose_y_us
-    return {
-        7: round(NEUTRAL[7] + y),
-        8: round(NEUTRAL[8] - x),
-        9: round(NEUTRAL[9] + x),
-        10: round(NEUTRAL[10] - y),
+    requested = {
+        fin.channel: round(fin.neutral + x * fin.x_sign + y * fin.y_sign)
+        for fin in profile.fins.values()
     }
+    return dict(sorted(requested.items()))
 
 
-def bounded_pulses_for(decision, settings):
+def bounded_pulses_for(decision, settings, profile=None):
     """Scale both steering axes together to fit every saved servo limit."""
-    requested = pulses_for(decision)
+    profile = profile or ACTIVE_PROFILE
+    neutral = profile.neutral
+    requested = pulses_for(decision, profile)
     scale = 1.0
     for channel, pulse in requested.items():
-        offset = pulse - NEUTRAL[channel]
+        offset = pulse - neutral[channel]
         if offset > 0:
-            scale = min(scale, (settings[channel]["max"] - NEUTRAL[channel]) / offset)
+            scale = min(scale, (settings[channel]["max"] - neutral[channel]) / offset)
         elif offset < 0:
-            scale = min(scale, (settings[channel]["min"] - NEUTRAL[channel]) / offset)
+            scale = min(scale, (settings[channel]["min"] - neutral[channel]) / offset)
     scale = max(0.0, min(1.0, scale))
     return {
-        channel: round(NEUTRAL[channel] + (pulse - NEUTRAL[channel]) * scale)
+        channel: round(neutral[channel] + (pulse - neutral[channel]) * scale)
         for channel, pulse in requested.items()
     }
 

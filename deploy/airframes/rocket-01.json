@@ -1,0 +1,9 @@
+{
+  "name": "rocket-01",
+  "fins": {
+    "top": {"channel": 8, "minimum": 1030, "neutral": 1430, "maximum": 1830, "x_sign": -1, "y_sign": 0, "low_toward_nose": "not_recorded"},
+    "right": {"channel": 7, "minimum": 1105, "neutral": 1505, "maximum": 1905, "x_sign": 0, "y_sign": 1, "low_toward_nose": "not_recorded"},
+    "bottom": {"channel": 9, "minimum": 1200, "neutral": 1600, "maximum": 2000, "x_sign": 1, "y_sign": 0, "low_toward_nose": "not_recorded"},
+    "left": {"channel": 10, "minimum": 1000, "neutral": 1400, "maximum": 1800, "x_sign": 0, "y_sign": -1, "low_toward_nose": "not_recorded"}
+  }
+}
