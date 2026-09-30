@@ -22,21 +22,21 @@ class AirframeProfileTests(unittest.TestCase):
     def test_rocket_02_calibration_and_positions(self):
         self.assertEqual(self.profile.name, "rocket-02")
         self.assertEqual(self.profile.neutral, {
-            7: 1520, 8: 1450, 9: 1585, 10: 1280,
+            7: 1525, 8: 1340, 9: 1715, 10: 1275,
         })
         self.assertEqual(
             {position: fin.channel
              for position, fin in self.profile.fins.items()},
             {"top": 7, "right": 8, "bottom": 9, "left": 10})
         self.assertEqual(expected_settings(self.profile), {
-            7: {"function": 0, "min": 1120, "max": 1920,
-                "trim": 1520},
-            8: {"function": 0, "min": 1050, "max": 1850,
-                "trim": 1450},
-            9: {"function": 0, "min": 1185, "max": 1985,
-                "trim": 1585},
-            10: {"function": 0, "min": 880, "max": 1680,
-                 "trim": 1280},
+            7: {"function": 0, "min": 1125, "max": 1925,
+                "trim": 1525},
+            8: {"function": 0, "min": 940, "max": 1740,
+                "trim": 1340},
+            9: {"function": 0, "min": 1315, "max": 2115,
+                "trim": 1715},
+            10: {"function": 0, "min": 875, "max": 1675,
+                 "trim": 1275},
         })
 
     def test_horizontal_pair_tilts_together_with_mirrored_pwm(self):
@@ -44,7 +44,7 @@ class AirframeProfileTests(unittest.TestCase):
                                    safe_nose_y_us=0)
         pulses = pulses_for(decision, self.profile)
         self.assertEqual(pulses, {
-            7: 1320, 8: 1450, 9: 1785, 10: 1280,
+            7: 1325, 8: 1340, 9: 1915, 10: 1275,
         })
 
     def test_vertical_pair_tilts_together_with_mirrored_pwm(self):
@@ -52,14 +52,14 @@ class AirframeProfileTests(unittest.TestCase):
                                    safe_nose_y_us=-200)
         pulses = pulses_for(decision, self.profile)
         self.assertEqual(pulses, {
-            7: 1520, 8: 1250, 9: 1585, 10: 1480,
+            7: 1525, 8: 1140, 9: 1715, 10: 1475,
         })
 
     def test_full_400_offset_reaches_saved_endpoints(self):
         decision = SimpleNamespace(safe_nose_x_us=-400,
                                    safe_nose_y_us=400)
         self.assertEqual(pulses_for(decision, self.profile), {
-            7: 1920, 8: 1850, 9: 1185, 10: 880,
+            7: 1925, 8: 1740, 9: 1315, 10: 875,
         })
 
     def test_duplicate_channel_is_rejected(self):
@@ -97,7 +97,7 @@ class AirframeProfileTests(unittest.TestCase):
         output = subprocess.check_output(
             command, env=environment, text=True).strip()
         self.assertEqual(
-            output, "{7: 1520, 8: 1450, 9: 1585, 10: 1280}")
+            output, "{7: 1525, 8: 1340, 9: 1715, 10: 1275}")
 
     def test_deployment_includes_selectable_airframe_profiles(self):
         defaults = (ROOT / "deploy" / "rocket-guidance.default").read_text(

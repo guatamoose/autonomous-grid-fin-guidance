@@ -1,6 +1,6 @@
 # Rocket 2 setup record
 
-Updated: 2026-09-23
+Updated: 2026-09-30
 
 ## Computer and Pi identity
 
@@ -58,14 +58,14 @@ Use the rear view of the rocket with the camera at the top.
 ## Rocket 2 servo calibration
 
 These values are saved in the flight controller, encoded in Rocket 2's software
-profile, and were read back through both USB and the Pi UART.
+profile, and were read back through the Pi UART on 2026-09-30.
 
 | Channel | Physical fin | Minimum | Neutral | Maximum | Direction sign verified |
 | --- | --- | ---: | ---: | ---: | --- |
-| S7 | Top | 1120 | 1520 | 1920 | Verified |
-| S8 | Right | 1050 | 1450 | 1850 | Verified |
-| S9 | Bottom | 1185 | 1585 | 1985 | Verified |
-| S10 | Left | 880 | 1280 | 1680 | Verified |
+| S7 | Top | 1125 | 1525 | 1925 | Verified |
+| S8 | Right | 940 | 1340 | 1740 | Verified |
+| S9 | Bottom | 1315 | 1715 | 2115 | Verified |
+| S10 | Left | 875 | 1275 | 1675 | Verified |
 
 At each channel's Low setting, the observed edge moving toward the nose was:
 S7 top left edge, S8 right top edge, S9 bottom right edge, and S10 left bottom
