@@ -16,15 +16,15 @@ class PreviewTests(unittest.TestCase):
         telemetry = OverlayTelemetry(
             state="locked", acquire_count=3, requested_us=300,
             direction="left-up",
-            pulses={7: 1705, 8: 1630, 9: 1400, 10: 1200},
+            pulses={7: 1600, 8: 1720, 9: 1390, 10: 1150},
             neutrals=NEUTRAL, observe_only=False, fps=12.4,
             recording="active", timestamp="2026-09-21T05:12:03Z")
         text = "\n".join(build_overlay_lines(telemetry))
         self.assertIn("LOCKED 3/3", text)
         self.assertIn("left-up", text)
         self.assertIn("request 300 us", text)
-        self.assertIn("S7 1705 (+200)", text)
-        self.assertIn("S10 1200 (-200)", text)
+        self.assertIn("S7 1600 (+200)", text)
+        self.assertIn("S10 1150 (-200)", text)
         self.assertIn("12.4 fps", text)
         self.assertIn("REC active", text)
         self.assertIn("2026-09-21T05:12:03Z", text)
@@ -38,7 +38,7 @@ class PreviewTests(unittest.TestCase):
         text = "\n".join(build_overlay_lines(telemetry))
         self.assertIn("request 400 us", text)
         self.assertIn("OBSERVE ONLY", text)
-        self.assertIn("S7 1505 (+0)", text)
+        self.assertIn("S7 1400 (+0)", text)
 
     def test_explicit_missing_detection_does_not_repeat_detection(self):
         frame = np.zeros((480, 640, 3), dtype=np.uint8)

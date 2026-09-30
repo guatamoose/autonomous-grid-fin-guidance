@@ -132,16 +132,16 @@ def connected_controller(connection=None, clock=lambda: 0.0,
 class ServoControllerTests(unittest.TestCase):
     def test_calibration_uses_repaired_fin_values(self):
         self.assertEqual(
-            NEUTRAL, {7: 1505, 8: 1430, 9: 1600, 10: 1400})
+            NEUTRAL, {7: 1400, 8: 1520, 9: 1590, 10: 1350})
         self.assertEqual(expected_settings(), {
-            7: {"function": 0, "min": 1105, "max": 1905,
-                "trim": 1505},
-            8: {"function": 0, "min": 1030, "max": 1830,
-                "trim": 1430},
-            9: {"function": 0, "min": 1200, "max": 2000,
-                "trim": 1600},
-            10: {"function": 0, "min": 1000, "max": 1800,
-                 "trim": 1400},
+            7: {"function": 0, "min": 1000, "max": 1800,
+                "trim": 1400},
+            8: {"function": 0, "min": 1120, "max": 1920,
+                "trim": 1520},
+            9: {"function": 0, "min": 1190, "max": 1990,
+                "trim": 1590},
+            10: {"function": 0, "min": 950, "max": 1750,
+                 "trim": 1350},
         })
 
     def test_connect_reads_exact_saved_settings(self):
@@ -165,8 +165,8 @@ class ServoControllerTests(unittest.TestCase):
         commands = [event for event in connection.events[before:]
                     if event[0] == "command"]
         self.assertEqual(commands, [
-            ("command", 7, 1505), ("command", 8, 1430),
-            ("command", 9, 1600), ("command", 10, 1400)])
+            ("command", 7, 1400), ("command", 8, 1520),
+            ("command", 9, 1590), ("command", 10, 1350)])
 
     def test_send_cycle_waits_for_each_ack_before_next_command(self):
         connection = FakeConnection(record_receives=True)
@@ -259,8 +259,8 @@ class ServoControllerTests(unittest.TestCase):
         controller = connected_controller(connection)
         controller.close()
         self.assertEqual(connection.events[-5:], [
-            ("command", 7, 1505), ("command", 8, 1430),
-            ("command", 9, 1600), ("command", 10, 1400),
+            ("command", 7, 1400), ("command", 8, 1520),
+            ("command", 9, 1590), ("command", 10, 1350),
             ("close",)])
 
     def test_diagonal_request_scales_both_axes_to_saved_limits(self):

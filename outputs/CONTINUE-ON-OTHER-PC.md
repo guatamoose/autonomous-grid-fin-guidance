@@ -18,10 +18,10 @@
 - Last hotspot address: `192.168.137.104` (may change)
 - Monitor port: 8766
 - Servo calibration:
-  - S7 right: 1105 / 1505 / 1905
-  - S8 top: 1030 / 1430 / 1830
-  - S9 bottom: 1200 / 1600 / 2000
-  - S10 left: 1000 / 1400 / 1800
+  - S7 right: 1000 / 1400 / 1800
+  - S8 top: 1120 / 1520 / 1920
+  - S9 bottom: 1190 / 1590 / 1990
+  - S10 left: 950 / 1350 / 1750
 
 ## First task on the other computer
 
@@ -45,10 +45,10 @@
 - Verify `/state` advances with no browser client.
 - Verify search, acquire, lock, lost, and stale-camera behavior.
 - Confirm reported physical output values remain neutral:
-  - S7 1505
-  - S8 1430
-  - S9 1600
-  - S10 1400
+  - S7 1400
+  - S8 1520
+  - S9 1590
+  - S10 1350
 - Verify logs rotate and `vcgencmd get_throttled` reports `0x0`.
 
 ## Work requiring the user present

@@ -64,3 +64,19 @@ with the controller disarmed and guidance stopped, read back independently, and
 then commanded once at neutral. Telemetry matched all four requested neutral
 values. The user then confirmed that all four fins were straight, quiet, and
 clear of binding.
+
+## Updated Rocket 1 calibration — 2026-09-30
+
+After the next fin adjustment, the user selected these centered ranges:
+
+| Output | Minimum | Neutral | Maximum |
+| --- | ---: | ---: | ---: |
+| S7 | 1000 | 1400 | 1800 |
+| S8 | 1120 | 1520 | 1920 |
+| S9 | 1190 | 1590 | 1990 |
+| S10 | 950 | 1350 | 1750 |
+
+The values preserve symmetric ±400 µs travel. They were written with the flight
+controller disarmed and the Pi guidance service inhibited, then read back from
+the controller successfully. The matching Pi software profile was updated
+locally; the service must remain inhibited until that profile is deployed.

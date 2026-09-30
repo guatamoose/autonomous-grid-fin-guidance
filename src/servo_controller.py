@@ -4,7 +4,7 @@ import time
 from threading import Condition, Thread
 
 
-NEUTRAL = {7: 1505, 8: 1430, 9: 1600, 10: 1400}
+NEUTRAL = {7: 1400, 8: 1520, 9: 1590, 10: 1350}
 TESTED_OFFSET_US = 200
 HEARTBEAT_TIMEOUT_SECONDS = 2.5
 PARAM_CHECK_INTERVAL_SECONDS = 1.0
@@ -25,10 +25,10 @@ def validate_bench_cap(max_offset):
 
 def expected_settings():
     return {
-        7: {"function": 0, "min": 1105, "max": 1905, "trim": 1505},
-        8: {"function": 0, "min": 1030, "max": 1830, "trim": 1430},
-        9: {"function": 0, "min": 1200, "max": 2000, "trim": 1600},
-        10: {"function": 0, "min": 1000, "max": 1800, "trim": 1400},
+        7: {"function": 0, "min": 1000, "max": 1800, "trim": 1400},
+        8: {"function": 0, "min": 1120, "max": 1920, "trim": 1520},
+        9: {"function": 0, "min": 1190, "max": 1990, "trim": 1590},
+        10: {"function": 0, "min": 950, "max": 1750, "trim": 1350},
     }
 
 

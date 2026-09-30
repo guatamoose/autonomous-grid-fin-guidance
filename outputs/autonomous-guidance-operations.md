@@ -1,6 +1,6 @@
 # Autonomous landing-pad guidance operations
 
-## Current verified state — 2026-09-22
+## Current verified state — 2026-09-30
 
 - Host: `rocketpi` (`pi@192.168.137.104` on the Windows hotspot)
 - Application: `/home/pi/rocket`
@@ -35,15 +35,15 @@
 
 | Output | Minimum | Neutral | Maximum |
 | --- | ---: | ---: | ---: |
-| S7 | 1105 | 1505 | 1905 |
-| S8 | 1030 | 1430 | 1830 |
-| S9 | 1200 | 1600 | 2000 |
-| S10 | 1000 | 1400 | 1800 |
+| S7 | 1000 | 1400 | 1800 |
+| S8 | 1120 | 1520 | 1920 |
+| S9 | 1190 | 1590 | 1990 |
+| S10 | 950 | 1350 | 1750 |
 
-These values were written to the disarmed flight controller on 2026-09-22,
-read back independently, and then commanded once. `SERVO_OUTPUT_RAW` telemetry
-matched S7=1505, S8=1430, S9=1600, and S10=1400. The user confirmed that all
-four fins were straight, quiet, and clear of binding at those positions.
+These values were written to the disarmed flight controller on 2026-09-30 and
+read back independently. The Pi guidance service was inhibited before the
+change and must remain inhibited until this updated software profile is
+deployed to the Pi.
 
 ## Service commands on the Pi
 
